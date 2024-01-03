@@ -1,0 +1,28 @@
+hr {
+	border-color: #666;
+	margin: 0 0 15px 0;
+}
+td {
+	padding: 0 5px 0 0;
+}
+.power-high {
+  color: red;
+}
+
+#conteneur {
+  font-size: 0; /* Pour supprimer l'espace blanc entre les sous-divs en tant que texte inline-block */
+}
+
+.sous-div {
+  display: inline-block;
+  margin: 5px;
+}
+.red {
+ color:red;
+}
+.orange{
+color:orange;
+}
+.green {
+ color:greenyellow;
+}

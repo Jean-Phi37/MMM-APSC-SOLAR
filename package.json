@@ -1,0 +1,29 @@
+{
+  "name": "mmm-apsc-solar",
+  "version": "1.0.0",
+  "description": "Use the APSystems ECU-C to retrieve daily data and show it in magicmirror",
+  "main": "MMM-APSC-SOLAR.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Jean-Phi37/MMM-APSC-SOLAR.git"
+  },
+  "keywords": [
+    "APSystems",
+    "ECU-C",
+    "Solar",
+    "PV"
+  ],
+  "author": "Jean-Philippe BAUD",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Jean-Phi37/MMM-APSC-SOLAR/issues"
+  },
+  "homepage": "https://github.com/Jean-Phi37/MMM-APSC-SOLAR#readme",
+  "dependencies": {
+    "moment": "^2.30.1",
+    "request": "^2.88.2"
+  }
+}
