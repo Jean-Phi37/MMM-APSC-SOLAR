@@ -1,34 +1,55 @@
 // MMM-MonModule.js
-//const moment = require("moment");
+const moment = require("moment");
 
 Module.register("MMM-APSC-SOLAR", {
   defaults: {
     apiUrl: "http://192.168.0.28/index.php/meter/old_meter_power_graph",
     updateInterval: 30000, // en millisecondes (60*5 secondes dans cet exemple)
-    header: "<i class=\"fa-solid fa-sun\"></i> Production Electrique"
+    header: '<i class="fa-solid fa-sun"></i> Production Electrique',
+    showPhaseDetails: true,
   },
- 
-  getStyles: function() {
-        return ['solar.css']; //, "fontawesome.css"
-    },
+
+  getStyles: function () {
+    return ["solar.css"]; //, "fontawesome.css"
+  },
 
   start: function () {
     var self = this;
     setInterval(function () {
       self.getData();
     }, this.config.updateInterval);
-	
-    this.titles = ["<i class=\"fa-solid fa-solar-panel\"></i>", "<i class=\"fa-solid fa-plug\"></i>", "<i class=\"fa-regular fa-clock\"></i>"];
-    this.suffixes = ["W", "W", ""];
-    this.results = ["Chargement...", "Chargement...", "Chargement..."];
-    this.resultsTotal = ["", "", ""];
+
+    this.rows = [
+      {
+        title: '<i class="fa-solid fa-solar-panel"></i>',
+        value: "Chargement...",
+        suffix: "W",
+        total: "",
+      },
+      {
+        title: '<i class="fa-solid fa-plug"></i>',
+        value: "Chargement...",
+        suffix: "W",
+        total: "",
+      },
+      {
+        title: '<i class="fa-regular fa-clock"></i>',
+        value: "Chargement...",
+        suffix: "",
+        total: "",
+        spanTwoColumns: true,
+      },
+    ];
+
+    this.energyFlow = {
+      production: 0,
+      consumption: 0,
+    };
+
     this.getData(); // Obtenez les données pour la première fois au démarrage
   },
 
   getData: function () {
-    var self = this;
-    // Effectuez une requête AJAX pour obtenir les données depuis l'API REST
-    //Log.log("Appel GetData");
     this.sendSocketNotification("MMM-APSC-SOLAR-GET_REST_DATA", this.config.apiUrl);
   },
 
@@ -38,108 +59,169 @@ Module.register("MMM-APSC-SOLAR", {
     }
   },
 
-  getHeader: function() {
-		return this.config.header;
-	},
-  getDom: function() {
-	var wrapper = document.createElement("div");
-	if (this.config.siteUrl === "") {
-	    wrapper.innerHTML = "Missing configuration.";
-	    return wrapper;
-	}
-      
-        //Display loading while waiting for API response
-        if (!this.loaded) {
-      	    wrapper.innerHTML = "<i class=\"fa-solid fa-solar-panel\"></i> Loading...";
-            return wrapper;
-      	}
+  getHeader: function () {
+    return this.config.header;
+  },
 
-        var tb = document.createElement("table");
+  getDom: function () {
+    var wrapper = document.createElement("div");
+    if (this.config.siteUrl === "") {
+      wrapper.innerHTML = "Missing configuration.";
+      return wrapper;
+    }
 
-        for (let i = 0; i < this.results.length; i++) {
-           let row = document.createElement("tr");
-           let titleTr = document.createElement("td");
-           let dataTr = document.createElement("td");
-	   let dataTotal = document.createElement("td");
+    //Display loading while waiting for API response
+    if (!this.loaded) {
+      wrapper.innerHTML = '<i class="fa-solid fa-solar-panel"></i> Loading...';
+      return wrapper;
+    }
 
-           titleTr.innerHTML = this.titles[i];
-           dataTr.innerHTML = this.results[i] + " " + this.suffixes[i];
-	   dataTotal.innerHTML = (this.resultsTotal[i] != "0" ? this.resultsTotal[i] + " kW" : "");
-	if(i==2) dataTr.colSpan = "2";
-	   dataTotal.className += " small light normal"
-       	   titleTr.className += " small regular bright";
-           dataTr.className += " small light normal" + (parseInt(this.results[i])> 2000 ? " power-high" : "");
+    var tb = document.createElement("table");
 
-           row.appendChild(titleTr);
-           row.appendChild(dataTr);
-	   row.appendChild(dataTotal);
-           tb.appendChild(row);
-      	}
+    for (let i = 0; i < this.rows.length; i++) {
+      const metric = this.rows[i];
+      let row = document.createElement("tr");
+      let titleTr = document.createElement("td");
+      let dataTr = document.createElement("td");
+      let dataTotal = document.createElement("td");
 
-        wrapper.appendChild(tb);
+      titleTr.innerHTML = metric.title;
+      dataTr.innerHTML = metric.value + (metric.suffix ? " " + metric.suffix : "");
+      dataTotal.innerHTML = metric.total ? metric.total : "";
 
-	let divSituation = document.createElement("div");
-	divSituation.className = "conteneur";
-	let divPanneau = document.createElement("div");
-	divPanneau.innerHTML = "<i class=\"fa-solid fa-solar-panel\"></i>";
-	divPanneau.className = "sous-div";
-	let divPanneau2Home = document.createElement("div");
-	divPanneau2Home.innerHTML = this.results[0] > 0 ? "<i class=\"fa-solid fa-circle-arrow-right fa-beat-fade\" style=\"--fa-beat-fade-opacity: 0.67; --fa-beat-fade-scale: 1.075;\"></i>" : "<i class=\"fa-solid fa-minus\"></i>";
-	divPanneau2Home.className = "sous-div " + (this.results[0] > 0 ? "green" : "");
-	let divHome = document.createElement("div");
-	divHome.className = "sous-div";
-	divHome.innerHTML = "<i class=\"fa-solid fa-house\"></i>";
-	let divHome2Network = document.createElement("div");
-	divHome2Network.className = "sous-div " + (this.results[1] > 0 ? "orange" : "green");
-	divHome2Network.innerHTML = this.results[1] > 0 ? "<i class=\"fa-solid fa-circle-arrow-left fa-beat-fade\" style=\"--fa-beat-fade-opacity: 0.67; --fa-beat-fade-scale: 1.075;\"></i>" : "<i class=\"fa-solid fa-circle-arrow-right fa-beat-fade\"></i>";
-	let divNetwork = document.createElement("div");
-	divNetwork.className = "sous-div";
-	divNetwork.innerHTML = "<i class=\"fa-solid fa-bolt\"></i>";
+      if (metric.spanTwoColumns) {
+        dataTr.colSpan = "2";
+      }
 
-	divSituation.appendChild(divPanneau);
-	divSituation.appendChild(divPanneau2Home);
-	divSituation.appendChild(divHome);
-	divSituation.appendChild(divHome2Network);
-	divSituation.appendChild(divNetwork);
-	
-	//let divSitu = document.createElement("div");
-	//divSitu.className = "container";
+      dataTotal.className += " small light normal";
+      titleTr.className += " small regular bright";
+      dataTr.className += " small light normal" + ((metric.highlight && parseInt(metric.value, 10) > 2000) ? " power-high" : "");
 
-	//divSitu.appendChild(divSituation);
-	//wrapper.appendChild(divSitu);
-wrapper.appendChild(divSituation);
-        return wrapper;
+      row.appendChild(titleTr);
+      row.appendChild(dataTr);
+      if (!metric.spanTwoColumns) {
+        row.appendChild(dataTotal);
+      }
+
+      tb.appendChild(row);
+    }
+
+    wrapper.appendChild(tb);
+
+    let divSituation = document.createElement("div");
+    divSituation.className = "conteneur";
+    let divPanneau = document.createElement("div");
+    divPanneau.innerHTML = '<i class="fa-solid fa-solar-panel"></i>';
+    divPanneau.className = "sous-div";
+    let divPanneau2Home = document.createElement("div");
+    divPanneau2Home.innerHTML = this.energyFlow.production > 0 ? '<i class="fa-solid fa-circle-arrow-right fa-beat-fade" style="--fa-beat-fade-opacity: 0.67; --fa-beat-fade-scale: 1.075;"></i>' : '<i class="fa-solid fa-minus"></i>';
+    divPanneau2Home.className = "sous-div " + (this.energyFlow.production > 0 ? "green" : "");
+    let divHome = document.createElement("div");
+    divHome.className = "sous-div";
+    divHome.innerHTML = '<i class="fa-solid fa-house"></i>';
+    let divHome2Network = document.createElement("div");
+    divHome2Network.className = "sous-div " + (this.energyFlow.consumption > 0 ? "orange" : "green");
+    divHome2Network.innerHTML = this.energyFlow.consumption > 0 ? '<i class="fa-solid fa-circle-arrow-left fa-beat-fade" style="--fa-beat-fade-opacity: 0.67; --fa-beat-fade-scale: 1.075;"></i>' : '<i class="fa-solid fa-circle-arrow-right fa-beat-fade"></i>';
+    let divNetwork = document.createElement("div");
+    divNetwork.className = "sous-div";
+    divNetwork.innerHTML = '<i class="fa-solid fa-bolt"></i>';
+
+    divSituation.appendChild(divPanneau);
+    divSituation.appendChild(divPanneau2Home);
+    divSituation.appendChild(divHome);
+    divSituation.appendChild(divHome2Network);
+    divSituation.appendChild(divNetwork);
+
+    wrapper.appendChild(divSituation);
+    return wrapper;
   },
 
   processData: function (data) {
-    	//console.log("Données récupérées :", data);
- 	if (!this.loaded) this.loaded = true;
- 	if (data && data.power1 && data.power2) {
-    		// Récupérez le dernier élément de "power1" et "power2"
-    		const lastPower1 = data.power1[data.power1.length - 1];
-    		const lastPower2 = data.power2[data.power2.length - 1];
+    if (!this.loaded) this.loaded = true;
 
-    		const sumProduction = lastPower1.powerA + lastPower1.powerB + lastPower1.powerC;
-    		const sumPowerConsumption = lastPower2.powerA + lastPower2.powerB + lastPower2.powerC;
+    if (data && data.power1 && data.power2 && data.power1.length && data.power2.length) {
+      // Récupérez le dernier élément de "power1" et "power2"
+      const lastPower1 = data.power1[data.power1.length - 1];
+      const lastPower2 = data.power2[data.power2.length - 1];
 
-		var ProdTotal = 0,ConsoTotal = 0;
-		for (let pas = 0; pas < data.power1.length; pas++) {
-			ProdTotal += (data.power1[pas].powerA + data.power1[pas].powerB + data.power1[pas].powerC) / (60/5);
-			ConsoTotal += (data.power2[pas].powerA + data.power2[pas].powerB + data.power2[pas].powerC) / (60/5);
-		}
+      const phaseProduction = {
+        A: Number(lastPower1.powerA) || 0,
+        B: Number(lastPower1.powerB) || 0,
+        C: Number(lastPower1.powerC) || 0,
+      };
 
-    		const unixTimePower1 = new Date(lastPower1.time).getTime() / 1000;
-    		const LastUpdated = moment.unix(unixTimePower1).format("DD MMM YYYY HH:mm");
-    		this.results = [sumProduction, sumPowerConsumption, LastUpdated];
-		this.resultsTotal = [ Math.round(ProdTotal)/1000 , Math.round(ConsoTotal)/1000 , "0"];
-    		//console.log("Data =>", this.results);
-    	}
-    	else {
-    		console.error("Format de données incorrect");
-  	}
+      const phaseConsumption = {
+        A: Number(lastPower2.powerA) || 0,
+        B: Number(lastPower2.powerB) || 0,
+        C: Number(lastPower2.powerC) || 0,
+      };
+
+      const sumProduction = phaseProduction.A + phaseProduction.B + phaseProduction.C;
+      const sumPowerConsumption = phaseConsumption.A + phaseConsumption.B + phaseConsumption.C;
+
+      var ProdTotal = 0,
+        ConsoTotal = 0;
+      for (let pas = 0; pas < data.power1.length; pas++) {
+        ProdTotal += (Number(data.power1[pas].powerA) + Number(data.power1[pas].powerB) + Number(data.power1[pas].powerC)) / (60 / 5);
+        ConsoTotal += (Number(data.power2[pas].powerA) + Number(data.power2[pas].powerB) + Number(data.power2[pas].powerC)) / (60 / 5);
+      }
+
+      const unixTimePower1 = new Date(lastPower1.time).getTime() / 1000;
+      const LastUpdated = moment.unix(unixTimePower1).format("DD MMM YYYY HH:mm");
+
+      const rows = [
+        {
+          title: '<i class="fa-solid fa-solar-panel"></i>',
+          value: Math.round(sumProduction),
+          suffix: "W",
+          total: Math.round(ProdTotal) / 1000 + " kW",
+          highlight: true,
+        },
+        {
+          title: '<i class="fa-solid fa-plug"></i>',
+          value: Math.round(sumPowerConsumption),
+          suffix: "W",
+          total: Math.round(ConsoTotal) / 1000 + " kW",
+          highlight: true,
+        },
+      ];
+
+      if (this.config.showPhaseDetails) {
+        rows.push(
+          {
+            title: "↳ Prod L1/L2/L3",
+            value: `${Math.round(phaseProduction.A)} / ${Math.round(phaseProduction.B)} / ${Math.round(phaseProduction.C)}`,
+            suffix: "W",
+            total: "",
+          },
+          {
+            title: "↳ Conso L1/L2/L3",
+            value: `${Math.round(phaseConsumption.A)} / ${Math.round(phaseConsumption.B)} / ${Math.round(phaseConsumption.C)}`,
+            suffix: "W",
+            total: "",
+          }
+        );
+      }
+
+      rows.push({
+        title: '<i class="fa-regular fa-clock"></i>',
+        value: LastUpdated,
+        suffix: "",
+        total: "",
+        spanTwoColumns: true,
+      });
+
+      this.rows = rows;
+      this.energyFlow = {
+        production: sumProduction,
+        consumption: sumPowerConsumption,
+      };
+    } else {
+      console.error("Format de données incorrect");
+    }
+
     this.updateDom();
   },
 
   // Autres méthodes et hooks peuvent être ajoutés selon les besoins
 });
-
