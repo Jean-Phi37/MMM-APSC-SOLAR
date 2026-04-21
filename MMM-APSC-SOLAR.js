@@ -1,5 +1,4 @@
 // MMM-MonModule.js
-const moment = require("moment");
 
 Module.register("MMM-APSC-SOLAR", {
   defaults: {
@@ -166,8 +165,16 @@ Module.register("MMM-APSC-SOLAR", {
         ConsoTotal += (Number(data.power2[pas].powerA) + Number(data.power2[pas].powerB) + Number(data.power2[pas].powerC)) / (60 / 5);
       }
 
-      const unixTimePower1 = new Date(lastPower1.time).getTime() / 1000;
-      const LastUpdated = moment.unix(unixTimePower1).format("DD MMM YYYY HH:mm");
+      const lastUpdateDate = new Date(lastPower1.time);
+      const LastUpdated = Number.isNaN(lastUpdateDate.getTime())
+        ? "Date invalide"
+        : lastUpdateDate.toLocaleString("fr-FR", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+          });
 
       const rows = [
         {
