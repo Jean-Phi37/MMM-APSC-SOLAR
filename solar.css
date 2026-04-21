@@ -26,3 +26,13 @@ color:orange;
 .green {
  color:greenyellow;
 }
+
+.phase-warning {
+  color: orange;
+  font-weight: 600;
+}
+
+.phase-danger {
+  color: red;
+  font-weight: 700;
+}

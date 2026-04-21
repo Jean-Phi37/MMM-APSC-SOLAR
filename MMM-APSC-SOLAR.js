@@ -6,6 +6,9 @@ Module.register("MMM-APSC-SOLAR", {
     updateInterval: 30000, // en millisecondes (60*5 secondes dans cet exemple)
     header: '<i class="fa fa-sun-o"></i> Production Electrique',
     showPhaseDetails: true,
+    subscriptionMaxPower: 9000,
+    warningThreshold: 0.75,
+    dangerThreshold: 0.95,
   },
 
   getStyles: function () {
@@ -50,6 +53,31 @@ Module.register("MMM-APSC-SOLAR", {
 
   getData: function () {
     this.sendSocketNotification("MMM-APSC-SOLAR-GET_REST_DATA", this.config.apiUrl);
+  },
+
+  getPhaseStatusClass: function (phasePower) {
+    const maxPerPhase = Number(this.config.subscriptionMaxPower) / 3;
+    const warningThreshold = Number(this.config.warningThreshold);
+    const dangerThreshold = Number(this.config.dangerThreshold);
+
+    if (!maxPerPhase || maxPerPhase <= 0) {
+      return "";
+    }
+
+    const ratio = phasePower / maxPerPhase;
+    if (ratio >= dangerThreshold) return "phase-danger";
+    if (ratio >= warningThreshold) return "phase-warning";
+    return "";
+  },
+
+  formatPhaseValue: function (phasePower, withAlert) {
+    const roundedPower = Math.round(phasePower);
+    if (!withAlert) return roundedPower;
+
+    const statusClass = this.getPhaseStatusClass(roundedPower);
+    if (!statusClass) return roundedPower;
+
+    return `<span class="${statusClass}">${roundedPower}</span>`;
   },
 
   socketNotificationReceived: function (notification, payload) {
@@ -197,13 +225,13 @@ Module.register("MMM-APSC-SOLAR", {
         rows.push(
           {
             title: "↳ Prod L1/L2/L3",
-            value: `${Math.round(phaseProduction.A)} / ${Math.round(phaseProduction.B)} / ${Math.round(phaseProduction.C)}`,
+            value: `${this.formatPhaseValue(phaseProduction.A, false)} / ${this.formatPhaseValue(phaseProduction.B, false)} / ${this.formatPhaseValue(phaseProduction.C, false)}`,
             suffix: "W",
             total: "",
           },
           {
             title: "↳ Conso L1/L2/L3",
-            value: `${Math.round(phaseConsumption.A)} / ${Math.round(phaseConsumption.B)} / ${Math.round(phaseConsumption.C)}`,
+            value: `${this.formatPhaseValue(phaseConsumption.A, true)} / ${this.formatPhaseValue(phaseConsumption.B, true)} / ${this.formatPhaseValue(phaseConsumption.C, true)}`,
             suffix: "W",
             total: "",
           }
