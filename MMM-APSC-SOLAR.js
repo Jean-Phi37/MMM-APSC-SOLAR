@@ -4,12 +4,12 @@ Module.register("MMM-APSC-SOLAR", {
   defaults: {
     apiUrl: "http://192.168.0.28/index.php/meter/old_meter_power_graph",
     updateInterval: 30000, // en millisecondes (60*5 secondes dans cet exemple)
-    header: '<i class="fa-solid fa-sun"></i> Production Electrique',
+    header: '<i class="fa fa-sun-o"></i> Production Electrique',
     showPhaseDetails: true,
   },
 
   getStyles: function () {
-    return ["solar.css"]; //, "fontawesome.css"
+    return ["font-awesome.css", "solar.css"];
   },
 
   start: function () {
@@ -20,19 +20,19 @@ Module.register("MMM-APSC-SOLAR", {
 
     this.rows = [
       {
-        title: '<i class="fa-solid fa-solar-panel"></i>',
+        title: '<i class="fa fa-sun-o"></i>',
         value: "Chargement...",
         suffix: "W",
         total: "",
       },
       {
-        title: '<i class="fa-solid fa-plug"></i>',
+        title: '<i class="fa fa-plug"></i>',
         value: "Chargement...",
         suffix: "W",
         total: "",
       },
       {
-        title: '<i class="fa-regular fa-clock"></i>',
+        title: '<i class="fa fa-clock-o"></i>',
         value: "Chargement...",
         suffix: "",
         total: "",
@@ -71,7 +71,7 @@ Module.register("MMM-APSC-SOLAR", {
 
     //Display loading while waiting for API response
     if (!this.loaded) {
-      wrapper.innerHTML = '<i class="fa-solid fa-solar-panel"></i> Loading...';
+      wrapper.innerHTML = '<i class="fa fa-sun-o"></i> Loading...';
       return wrapper;
     }
 
@@ -110,20 +110,20 @@ Module.register("MMM-APSC-SOLAR", {
     let divSituation = document.createElement("div");
     divSituation.className = "conteneur";
     let divPanneau = document.createElement("div");
-    divPanneau.innerHTML = '<i class="fa-solid fa-solar-panel"></i>';
+    divPanneau.innerHTML = '<i class="fa fa-sun-o"></i>';
     divPanneau.className = "sous-div";
     let divPanneau2Home = document.createElement("div");
-    divPanneau2Home.innerHTML = this.energyFlow.production > 0 ? '<i class="fa-solid fa-circle-arrow-right fa-beat-fade" style="--fa-beat-fade-opacity: 0.67; --fa-beat-fade-scale: 1.075;"></i>' : '<i class="fa-solid fa-minus"></i>';
+    divPanneau2Home.innerHTML = this.energyFlow.production > 0 ? '<i class="fa fa-arrow-circle-right"></i>' : '<i class="fa fa-minus"></i>';
     divPanneau2Home.className = "sous-div " + (this.energyFlow.production > 0 ? "green" : "");
     let divHome = document.createElement("div");
     divHome.className = "sous-div";
-    divHome.innerHTML = '<i class="fa-solid fa-house"></i>';
+    divHome.innerHTML = '<i class="fa fa-home"></i>';
     let divHome2Network = document.createElement("div");
     divHome2Network.className = "sous-div " + (this.energyFlow.consumption > 0 ? "orange" : "green");
-    divHome2Network.innerHTML = this.energyFlow.consumption > 0 ? '<i class="fa-solid fa-circle-arrow-left fa-beat-fade" style="--fa-beat-fade-opacity: 0.67; --fa-beat-fade-scale: 1.075;"></i>' : '<i class="fa-solid fa-circle-arrow-right fa-beat-fade"></i>';
+    divHome2Network.innerHTML = this.energyFlow.consumption > 0 ? '<i class="fa fa-arrow-circle-left"></i>' : '<i class="fa fa-arrow-circle-right"></i>';
     let divNetwork = document.createElement("div");
     divNetwork.className = "sous-div";
-    divNetwork.innerHTML = '<i class="fa-solid fa-bolt"></i>';
+    divNetwork.innerHTML = '<i class="fa fa-bolt"></i>';
 
     divSituation.appendChild(divPanneau);
     divSituation.appendChild(divPanneau2Home);
@@ -178,14 +178,14 @@ Module.register("MMM-APSC-SOLAR", {
 
       const rows = [
         {
-          title: '<i class="fa-solid fa-solar-panel"></i>',
+          title: '<i class="fa fa-sun-o"></i>',
           value: Math.round(sumProduction),
           suffix: "W",
           total: Math.round(ProdTotal) / 1000 + " kW",
           highlight: true,
         },
         {
-          title: '<i class="fa-solid fa-plug"></i>',
+          title: '<i class="fa fa-plug"></i>',
           value: Math.round(sumPowerConsumption),
           suffix: "W",
           total: Math.round(ConsoTotal) / 1000 + " kW",
@@ -211,7 +211,7 @@ Module.register("MMM-APSC-SOLAR", {
       }
 
       rows.push({
-        title: '<i class="fa-regular fa-clock"></i>',
+        title: '<i class="fa fa-clock-o"></i>',
         value: LastUpdated,
         suffix: "",
         total: "",
