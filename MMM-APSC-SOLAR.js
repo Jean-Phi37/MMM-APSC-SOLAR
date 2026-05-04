@@ -4,7 +4,7 @@ Module.register("MMM-APSC-SOLAR", {
   defaults: {
     apiUrl: "http://192.168.0.28/index.php/meter/old_meter_power_graph",
     updateInterval: 30000, // en millisecondes (60*5 secondes dans cet exemple)
-    header: '<i class="fa fa-sun-o"></i> Production Electrique',
+    header: '<i class="fa-solid fa-solar-panel"></i> Production Electrique',
     showPhaseDetails: true,
     subscriptionMaxPower: 9000,
     warningThreshold: 0.75,
@@ -23,7 +23,7 @@ Module.register("MMM-APSC-SOLAR", {
 
     this.rows = [
       {
-        title: '<i class="fa fa-sun-o"></i>',
+        title: '<i class="fa-solid fa-solar-panel"></i>',
         value: "Chargement...",
         suffix: "W",
         total: "",
@@ -99,7 +99,7 @@ Module.register("MMM-APSC-SOLAR", {
 
     //Display loading while waiting for API response
     if (!this.loaded) {
-      wrapper.innerHTML = '<i class="fa fa-sun-o"></i> Loading...';
+      wrapper.innerHTML = '<i class="fa-solid fa-solar-panel"></i> Loading...';
       return wrapper;
     }
 
@@ -138,7 +138,7 @@ Module.register("MMM-APSC-SOLAR", {
     let divSituation = document.createElement("div");
     divSituation.className = "conteneur";
     let divPanneau = document.createElement("div");
-    divPanneau.innerHTML = '<i class="fa fa-sun-o"></i>';
+    divPanneau.innerHTML = '<i class="fa-solid fa-solar-panel"></i>';
     divPanneau.className = "sous-div";
     let divPanneau2Home = document.createElement("div");
     divPanneau2Home.innerHTML = this.energyFlow.production > 0 ? '<i class="fa fa-arrow-circle-right"></i>' : '<i class="fa fa-minus"></i>';
@@ -206,7 +206,7 @@ Module.register("MMM-APSC-SOLAR", {
 
       const rows = [
         {
-          title: '<i class="fa fa-sun-o"></i>',
+          title: '<i class="fa-solid fa-solar-panel"></i>',
           value: Math.round(sumProduction),
           suffix: "W",
           total: Math.round(ProdTotal) / 1000 + " kW",

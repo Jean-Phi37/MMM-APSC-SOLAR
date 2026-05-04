@@ -5,7 +5,6 @@
  * MIT Licensed.
  */
 const NodeHelper = require("node_helper");
-const request = require('request');
 
 module.exports = NodeHelper.create({
   start: function () {
@@ -19,15 +18,19 @@ module.exports = NodeHelper.create({
     }
   },
 
-  getRestData: function (url) {
-    var self = this;
-    // Effectuez une requête HTTP pour obtenir les données depuis l'API REST
-    request(url, function (error, response, body) {
-      if (!error && response.statusCode == 200) {
-        // Envoyez les données à MMM-MonModule.js
-        self.sendSocketNotification("MMM-APSC-SOLAR-REST_DATA_RESULT", JSON.parse(body));
+  getRestData: async function (url) {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        console.error(`MMM-APSC-SOLAR: HTTP ${response.status} for ${url}`);
+        return;
       }
-    });
+
+      const data = await response.json();
+      this.sendSocketNotification("MMM-APSC-SOLAR-REST_DATA_RESULT", data);
+    } catch (error) {
+      console.error(`MMM-APSC-SOLAR: Failed to fetch data from ${url}`, error);
+    }
   },
 });
 
